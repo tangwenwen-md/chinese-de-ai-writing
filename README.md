@@ -15,6 +15,50 @@ There are already many Chinese "de-AI" skills on GitHub. Reviewing 13 of them tu
 
 This project combines those findings, labels every rule with its evidence level, and ships a reproducible validation.
 
+## Before and after
+
+Both excerpts come from the validation corpus: a Claude draft written for "write a popular-science article" and the edit-mode result.
+
+**1. Current Claude sounds AI through structure, not vocabulary**
+
+Scanner output on a draft (excerpt):
+
+```
+feature                              hits  per-1k  human   AI   verdict
+idle lead-in + list (几种情况：+ list)   2    1.79   0.03  0.29  high
+ordinal headings (一、二、三 ≥3)         4    3.58   0.06  0.19  high
+em dash                                 2    1.79   0.80  2.38  elevated
+    L13: 关于它的成因，目前有几种推测：
+    L23: 如果孩子的腿疼符合以下特点，生长痛的可能性较大：
+```
+
+Edit (another draft, CT in pregnancy):
+
+```diff
+- 今天我们就来系统地聊一聊：孕期到底能不能做CT和核磁共振？
++ 孕期到底能不能做CT和核磁共振？
+- ## 一、先分清：CT和核磁有什么不同？
+- **CT（计算机断层扫描）** 本质上是X线检查，……**存在电离辐射**。
+- **核磁共振（MRI）** 利用强磁场和射频脉冲成像，**没有电离辐射**。
++ ## CT和核磁有什么不同
++ CT（计算机断层扫描）本质上是X线检查，……有电离辐射。核磁共振（MRI）靠强磁场和射频脉冲成像，没有电离辐射。
+```
+
+Every number, dose threshold and gestational window is unchanged; only the numbered heading, the idle lead-in and decorative bold are gone.
+
+**2. A failure that became a rule**
+
+In the first edit round, the ❌ before "wrong things to do" during a febrile seizure was removed as decoration:
+
+```diff
+  ## 这些错误做法千万别做  (things you must not do)
+- **❌ 掐人中**           (❌ pinch the philtrum)
++ **掐人中**             ← round 1: now reads like an instruction
++ **别掐人中**           ← round 2: after the rule change ("don't pinch the philtrum")
+```
+
+Panicked parents skim. The independent check flagged it as a safety issue, and the hard constraints now say: removing ❌ requires a verbal negation, bold on danger signs stays, and the only catch-all "see a doctor" line is never deleted. Full audit trail in [validation/rewrite/](validation/rewrite/).
+
 ## What is inside
 
 ```
