@@ -1,0 +1,85 @@
+# chinese-de-ai-writing · 中文去 AI 味
+
+> 一个面向简体中文的审稿、改稿 skill（Claude Code / Agent Skills 格式）。规则按证据分级：只有人机语料对照里站得住的特征才当硬规则，流行但被实测推翻的规则明确列为"不要做"。最高约束是信息守恒：不编造事实、病例、数字、引文，不改论断强度。
+
+[English](README.md) · [许可证 (MIT)](LICENSE) · [第三方声明](THIRD_PARTY_NOTICES.md) · [贡献指南](CONTRIBUTING.md)
+
+---
+
+## 为什么再做一个
+
+GitHub 上已经有不少中文去 AI 味 skill。调研时读了 13 个中文项目，发现两个问题：
+
+1. **很多流行规则是错的。** [lieflat-less-ai-tone](https://github.com/larashero3-dotcom/lieflat-less-ai-tone) 用 283 万字人机对照语料检验了 26 条流传的判据，只有 11 条成立。"句长要参差""删设问""少用比喻""加口语词"都没通过：人类用设问是 AI 的 17 倍，比喻是 2.4 倍。
+2. **不少项目的改写示范会编造。** 替作者补数据、补经历、补"我上周接诊了一个孩子"。多个项目后来专门修过这个问题。对医学、学术、公文内容来说，这比 AI 味本身危险得多。
+
+本项目把这些结论合在一起，规则逐条标注证据等级，附一个可复现的检验。
+
+## 包含什么
+
+```
+SKILL.md                    主文件：四条硬约束、四种模式、规则总表
+references/patterns.md      每条规则的说明、改前改后、保留边界
+references/registers.md     分文体规则：小红书/社媒、口播与台词、科普、标书公文、中文学术
+references/evidence.md      证据来源、各项目冲突时的裁决、民间方法核查、已知缺口
+scripts/zh_ai_scan.py       量化扫描：10 项实测特征的每千字密度 + 人机基线对照 + 命中行号
+validation/                 检验脚本、Claude 生成的对照语料、检验结果
+tests/                      脚本回归样本
+```
+
+四种模式：**审稿**（只诊断）、**改稿**（最少改动，附改动说明和【待补】）、**写作**（先清点真实材料再写）、**流水线审核**（给多 agent 流水线用的固定 JSON 输出）。
+
+## 规则分三级
+
+| 级别 | 含义 | 例子 |
+|---|---|---|
+| A 实测 | 人机语料对照成立，硬规则 | 翻案腔（不是…而是）、段首零回指评论、提示性冒号、空转句引列表、序数词小标题、顿号罗列、拟人化职业喻体 |
+| B 共识 | 多个项目或社区提到、没有中文频率数据，**命中且空泛才改** | 意义拔高、时代帽子开场、正能量收尾、黑话大词、客服腔 |
+| C 不要做 | 被实测推翻或证据相反 | 调句长、删设问、删比喻、名词化一律改、按词表替换、加错别字、回译、同义词替换 |
+
+## 检验结果
+
+扫描脚本在 HC3-Chinese（人类回答对照 GPT-3.5 回答，开放域、医学、心理三个子集）和 Claude 生成的对照语料上检验。"判为偏高"指任一实测特征超过人类基线两倍。
+
+| 组 | 文档数 | 任一实测项判为偏高 |
+|---|---|---|
+| 人类回答（HC3） | 12,078 | 3.4%（误报率） |
+| GPT-3.5 回答（HC3） | 5,803 | 18.9% |
+| Claude 回答同一批问题 | 60 | 85.0% |
+| Claude 写的科普稿 | 12 | 83.3% |
+
+改稿检验、分项数据和局限见 [validation/RESULTS.md](validation/RESULTS.md)。有几条值得先知道：
+
+- 现在的 Claude 几乎不写"综上所述""此外"这类套话。它的 AI 味主要在格式和结构上，比如空转句引列表、序数小标题、顿号罗列。GPT-3.5 正好相反。
+- 破折号特征随模型版本变化很大，同一厂商新旧版本能差一个数量级。
+- 人类对照组是问答语料，长文章（带小标题的公众号、新闻）上的误报率还没测过。
+
+## 安装
+
+Claude Code：
+
+```bash
+git clone https://github.com/tangwenwen-md/chinese-de-ai-writing ~/.claude/skills/chinese-de-ai-writing
+```
+
+然后在对话里说"帮我去一下 AI 味""这段有没有 AI 味"即可触发。扫描脚本只依赖 Python 3 标准库，也可以单独用：
+
+```bash
+python3 scripts/zh_ai_scan.py 稿子.md --register 科普
+```
+
+`--register` 可选：通用、社媒、口播、台词、科普、文书、学术。
+
+## 它不做什么
+
+- 不以"降低知网/朱雀 AIGC 检测率"为目标，不提供错别字、回译、隐藏字符之类的对抗手段。AI 参与过的内容请按平台和机构规定标注（小红书 2026 年起要求主动标注 AI 生成内容；国家自然科学基金委 2026 年通告要求如实声明 AI 使用）。
+- 不判断医学、法律内容本身对不对，只保证改写不动事实和强度。
+- 不处理英文文本。
+
+## 引用
+
+见 [CITATION.cff](CITATION.cff)。
+
+## 致谢
+
+规则和基线大量借鉴了 lieflat-less-ai-tone、op7418/Humanizer-zh、shuorenhua、qu-ai-wei、human-writing、humanizer-zh-next、speak-human-tw（均为 MIT 许可），以及中英文维基百科的 AI 写作迹象页面、朱君辉等（CCL 2023）和 HC3 数据集。逐项说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 和 [references/evidence.md](references/evidence.md)。

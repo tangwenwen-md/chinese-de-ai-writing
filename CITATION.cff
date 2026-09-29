@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: "chinese-de-ai-writing: evidence-graded de-AI editing skill for Simplified Chinese"
+message: "If you use this skill or its validation results, please cite it."
+type: software
+authors:
+  - family-names: "Tang"
+    given-names: "Wenwen"
+    affiliation: "Department of Pediatric Neurosurgery, Affiliated Women and Children's Hospital of Ningbo University"
+repository-code: "https://github.com/tangwenwen-md/chinese-de-ai-writing"
+abstract: >
+  An agent skill (Claude Code / Agent Skills format) for auditing and editing
+  AI-sounding patterns in Simplified Chinese text. Rules are graded by evidence:
+  only features that hold up in human/AI corpus comparisons are enforced;
+  popular but refuted rules are listed as things not to do. The top constraint
+  is information conservation: no invented facts, cases, numbers or quotes, and
+  no change to claim strength. Includes a regex scanner with human/AI baselines
+  and a reproducible validation against HC3-Chinese and Claude-generated text.
+keywords:
+  - Chinese
+  - AI-generated text
+  - writing
+  - agent skill
+  - Claude Code
+  - medical communication
+license: MIT
+version: "0.1.0"
+date-released: "2026-09-29"
